@@ -5,14 +5,14 @@ using Fusion;
 using Fusion.Sockets;
 using System;
 using System.Linq;
-using UnityEngine.UI;
+using TMPro;
 
 public class SpawnNetworkPlayer : MonoBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField] NetworkPlayer _playerPrefab;
 
     CharacterInputHandler _characterInputHandler;
-    [SerializeField] Text _textConnecting;
+    [SerializeField] TextMeshProUGUI _textConnecting;
 
 
 
@@ -32,6 +32,17 @@ public class SpawnNetworkPlayer : MonoBehaviour, INetworkRunnerCallbacks
                 runner.Spawn(_playerPrefab, !obj.Object.IsProxy ?obj.StateAuthorityInitialPos.position :
                     obj.PlayerInitialPos.position, Quaternion.identity, runner.LocalPlayer)
                     .gameObject.GetComponent<PlayerModel>();
+
+
+                //if (GameManager.GM.Object.IsProxy)
+                //{
+                //    GameManager.GM.player1ID = NetworkPlayer.Local.Object.Id.ToNamePrefixString();
+                //}
+                //else
+                //{
+                //    GameManager.GM.player2ID = NetworkPlayer.Local.Object.Id.ToNamePrefixString();
+                //}
+
                 break;
             default:
                 break;

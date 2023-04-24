@@ -35,4 +35,8 @@ public class NetworkPlayer : NetworkBehaviour
         Debug.LogWarning("Player Muerto");
         OnReset();
     }
+    public void OnDisconnected()
+    {
+        Runner.Shutdown();
+    }
 }

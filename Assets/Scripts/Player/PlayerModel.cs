@@ -6,6 +6,7 @@ using Fusion;
 
 public class PlayerModel : NetworkBehaviour
 {
+
     [SerializeField] NetworkRigidbody _rgbd;
     [SerializeField] Animator _animator;
     [SerializeField] Bullet _bulletPrefab;
@@ -20,7 +21,6 @@ public class PlayerModel : NetworkBehaviour
     [SerializeField] float _maxlife { get; set; }
 
     float _lastFireTime;
-
 
     [Networked(OnChanged = nameof(ShootChangedCallback))]
     bool IsFiring { get; set; } 
@@ -45,7 +45,6 @@ public class PlayerModel : NetworkBehaviour
 
     public override void Spawned()
     {
-
         _life = 100;
 
         var lifeManager = FindObjectOfType<LifebarManager>();
@@ -172,6 +171,7 @@ public class PlayerModel : NetworkBehaviour
     {
         //Runner.Despawn(this.Object);
         Debug.LogWarning("Player Muerto");
+        //GameManager.GM.AddNegativePoint(NetworkPlayer.Local.Object.Id);
         GameManager.GM.RPC_OnResetLevel();
     }
 

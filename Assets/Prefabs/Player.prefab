@@ -1155,6 +1155,7 @@ MonoBehaviour:
   _bulletPrefab: {fileID: -2908517216496343224, guid: 9a6d3e12e1c142a449397e28e9a11922, type: 3}
   _shootParticle: {fileID: 2160799791594477452}
   _firePosition: {fileID: 4875420048878393682}
+  __life: 0
   _speed: 3
   _jumpForce: 5
 --- !u!114 &-8280833578655248281
@@ -1170,6 +1171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
+  player: {fileID: 0}
 --- !u!114 &8342872322473405738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1206,7 +1208,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7765862383734756661}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.31, y: 0.93, z: 0.88}
+  m_LocalPosition: {x: 0.094, y: 0.93, z: 0.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
