@@ -9,6 +9,7 @@ public class CharacterInputHandler : MonoBehaviour
     float _moveInput;
     bool _isJumpPressed;
     bool _isFirePressed;
+    bool _isProtectPressed;
 
     void Start()
     {
@@ -26,9 +27,13 @@ public class CharacterInputHandler : MonoBehaviour
             _isJumpPressed = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             _isFirePressed = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _isProtectPressed = true;
         }
     }
 
@@ -44,6 +49,9 @@ public class CharacterInputHandler : MonoBehaviour
 
         inputData.isFirePressed = _isFirePressed;
         _isFirePressed = false;
+
+        inputData.isProtectPressed = _isProtectPressed;
+        _isProtectPressed = false;
 
         return inputData;
     }

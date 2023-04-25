@@ -9,27 +9,14 @@ public class GameManager : NetworkBehaviour
     public static GameManager GM { get; private set; }
 
     [SerializeField] TextMeshProUGUI _textRestarting;
-/*
-    [Networked]
-    public string player1ID { get; set; }
-    [Networked]
-    public int player1Points { get; set; }
-
-    [Networked]
-    public string player2ID { get; set; }
-    [Networked]
-    public int player2Points { get; set; }*/
 
     public Transform StateAuthorityInitialPos;
     public Transform PlayerInitialPos;
 
     public GameObject canvas,winSing,loseSing;
 
-    //float pointsToWin=3;
-
-    //[Networked]
-    //float _timeAcum2 { get; set; }
-
+    //key ID, Value isready?
+    public Dictionary<string, bool> OnReplayReady = new Dictionary<string, bool>();
 
     private void Start()
     {
@@ -43,77 +30,71 @@ public class GameManager : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void RPC_OnEnd(string playerDeadID)
     {
+        Time.timeScale = 0;
         canvas.SetActive(true);
-        if (playerDeadID == NetworkPlayer.Local.Runner.GetPlayerUserId())
+
+        loseSing.SetActive(false);
+        winSing.SetActive(false);
+
+        string playerID= NetworkPlayer.Local.Runner.GetPlayerUserId();
+
+        if (playerDeadID == playerID)
             loseSing.SetActive(true);
         else
             winSing.SetActive(true);
-            
+
+        if(!OnReplayReady.ContainsKey(NetworkPlayer.Local.Runner.GetPlayerUserId()))
+            OnReplayReady.Add(playerID, false);//Seteo el dicionario para poner que ninguno de los dos esta listo para reiniciar
+
+        foreach (var item in OnReplayReady)
+        {
+            Debug.Log(item.Key);
+        }
+    }
+    public void OnQuitEndScreen()
+    {
+        Time.timeScale = 1;
+        canvas.SetActive(false);
+        winSing.SetActive(false);
+        loseSing.SetActive(false);
+    }
+    public bool IsEveryOneReadyToReset() {
+        if (OnReplayReady.Count < 2)
+            return false;
+
+        foreach (var item in OnReplayReady)
+        {
+            if (item.Value == false)
+                return false;
+        }
+
+        return true;
     }
     [Rpc(RpcSources.All, RpcTargets.All)]
-    public void RPC_OnResetLevel(string txt) => StartCoroutine(ResetLevel(txt));
+    public void RPC_OnResetLevel(string IDisReady)
+    {
+        OnReplayReady[IDisReady] = true;
 
-    IEnumerator ResetLevel(string txt)
+        if (IsEveryOneReadyToReset())
+        {
+            OnReplayReady = new Dictionary<string, bool>();
+            OnQuitEndScreen();
+            StartCoroutine(ResetLevel());
+        }
+
+    }
+
+    IEnumerator ResetLevel()
     {
         
         _textRestarting.gameObject.SetActive(true);
         NetworkPlayer.Local.player.ResetLife();
         NetworkPlayer.Local.transform.position = !Object.IsProxy ? 
             StateAuthorityInitialPos.position: PlayerInitialPos.position;
+        Time.timeScale = 0;
 
         yield return new WaitForSecondsRealtime(2f);
+        Time.timeScale = 1;
         _textRestarting.gameObject.SetActive(false);
     }
 }
-
-/*
-public struct PlayerPoints
-{
-    public NetworkId ID;
-    public int Points { get; private set; }
-
-    public void AddPoint() { Points++; }
-}*/
-
-
-
-/*public void AddNegativePoint(NetworkId playerID)
-{
-    if(playerID.ToNamePrefixString()== player1ID)
-    {
-        player1Points++;
-    }
-    else if (playerID.ToNamePrefixString() == player2ID)
-    {
-        player2Points++;
-    }
-    Debug.Log(player1ID+": "+player1Points);
-    Debug.Log(player2ID + ": " + player2Points);
-    //for (int i = 0; i < PlayerNegativePoints.Length; i++)
-    //{
-    //    if (PlayerNegativePoints[i].ID == playerID)
-    //        PlayerNegativePoints[i].AddPoint();
-    //    return;
-    //}
-
-
-
-    //if (PlayerNegativePoints[playerID] >= pointsToWin) { /*win}
-    //
-    //foreach (var item in PlayerNegativePoints)
-    //{
-    //    Debug.Log(item.Key + ": " + item.Value);
-    //}
-    //RPC_UpdateList(PlayerNegativePoints);
-}
-//[Rpc(RpcSources.All, RpcTargets.All)]
-//public void RPC_UpdateList(Dictionary<int, int> _new)
-//{
-//    PlayerNegativePoints = _new;
-//
-//    foreach (var item in PlayerNegativePoints)
-//    {
-//        Debug.Log(item.Key + ": " + item.Value);
-//    }
-//}
-*/

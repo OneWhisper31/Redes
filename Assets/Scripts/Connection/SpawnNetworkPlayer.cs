@@ -53,6 +53,7 @@ public class SpawnNetworkPlayer : MonoBehaviour, INetworkRunnerCallbacks
             return;
         NetworkPlayer.Local.player.OnDisconected();
         _textConnecting.gameObject.SetActive(true);
+        GameManager.GM.OnQuitEndScreen();
     }
     
     public void OnInput(NetworkRunner runner, NetworkInput input)

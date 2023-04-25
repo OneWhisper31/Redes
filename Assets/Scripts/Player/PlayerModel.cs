@@ -6,24 +6,27 @@ using Fusion;
 
 public class PlayerModel : NetworkBehaviour
 {
-
     [SerializeField] NetworkRigidbody _rgbd;
     [SerializeField] Animator _animator;
     [SerializeField] Bullet _bulletPrefab;
     [SerializeField] ParticleSystem _shootParticle;
-
+    [SerializeField] GameObject _shield;
     [SerializeField] Transform _firePosition;
 
     [Networked(OnChanged = nameof(LifeChangedCallback))]
     [SerializeField] float _life { get; set; }
     [SerializeField] float _speed;
-    [SerializeField] float _jumpForce;
+    [SerializeField] float _jumpForce, _protectCooldown;
     [SerializeField] float _maxlife { get; set; }
 
-    float _lastFireTime;
-
+    float _lastFireTime,_lastProtectTime;
+    
     [Networked(OnChanged = nameof(ShootChangedCallback))]
-    bool IsFiring { get; set; } 
+    bool IsFiring { get; set; }
+
+
+    [Networked(OnChanged = nameof(ProtectChangedCallback))]
+    bool IsProtecting { get; set; }
 
     int _previousSign, _currentSign;
 
@@ -55,6 +58,8 @@ public class PlayerModel : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
+        if (Time.timeScale == 0)
+            return;
         if (GetInput(out NetworkInputData networkInputData))
         {
             Movement(networkInputData.movementInput);
@@ -68,6 +73,11 @@ public class PlayerModel : NetworkBehaviour
         if (networkInputData.isJumpPressed)
         {
             Jump();
+        }
+
+        if (networkInputData.isProtectPressed)
+        {
+            Protect();
         }
     }
 
@@ -123,6 +133,24 @@ public class PlayerModel : NetworkBehaviour
         IsFiring = false;
     }
 
+    private void Protect()
+    {
+        if (Time.time - _lastProtectTime < _protectCooldown) return;
+
+        _lastProtectTime = Time.time;
+
+        StartCoroutine(Protect_Cooldown());
+    }
+
+    IEnumerator Protect_Cooldown()
+    {
+        IsProtecting = true;
+
+        yield return new WaitForSeconds(_protectCooldown);
+
+        IsProtecting = false;
+    }
+    
     static void ShootChangedCallback(Changed<PlayerModel> changed)
     {
         //Guardo el valor de IsFiring del frame actual
@@ -138,6 +166,11 @@ public class PlayerModel : NetworkBehaviour
         {
             changed.Behaviour._shootParticle.Play();
         }
+    }
+    static void ProtectChangedCallback(Changed<PlayerModel> changed)
+    {
+        //actualizco la visibilidad en base al nuevo valor
+        changed.Behaviour._shield.SetActive(changed.Behaviour.IsProtecting);
     }
 
     public void TakeDamage(float dmg)
@@ -169,10 +202,6 @@ public class PlayerModel : NetworkBehaviour
     }
     void Dead()
     {
-        //Runner.Despawn(this.Object);
-        //GameManager.GM.AddNegativePoint(NetworkPlayer.Local.Object.Id);
-
-        //Debug.LogWarning( Runner.GetPlayerUserId()+" Muerto");
         GameManager.GM.RPC_OnEnd(Runner.GetPlayerUserId());
     }
 

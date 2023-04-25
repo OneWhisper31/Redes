@@ -4,17 +4,15 @@ using UnityEngine;
 
 public class WinLoseHandler : MonoBehaviour
 {
-    public bool onReplay { get; private set; }
-
     public void OnReplay()
     {
-        onReplay = true;
-
-        //si los dos tienen true reinicia contadores
+        GameManager.GM.RPC_OnResetLevel(NetworkPlayer.Local.Runner.GetPlayerUserId());
     }
 
-    public void OnQuit()
-    {
-        NetworkPlayer.Local.OnDisconnected();
+    public void OnQuit() {
+        GameManager.GM.OnQuitEndScreen();//los otros se enteran segun el callback OnPlayerLeft
+        NetworkPlayer.Local.Runner.Shutdown();
+        Application.Quit();
+        Debug.Log("App Close");
     }
 }
