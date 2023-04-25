@@ -23,6 +23,8 @@ public class GameManager : NetworkBehaviour
     public Transform StateAuthorityInitialPos;
     public Transform PlayerInitialPos;
 
+    public GameObject canvas,winSing,loseSing;
+
     //float pointsToWin=3;
 
     //[Networked]
@@ -38,52 +40,22 @@ public class GameManager : NetworkBehaviour
     {
         Debug.Log("Authority: " + Object.HasStateAuthority + " - Proxy: " + Object.IsProxy);
     }
-
-    /*public void AddNegativePoint(NetworkId playerID)
-    {
-        if(playerID.ToNamePrefixString()== player1ID)
-        {
-            player1Points++;
-        }
-        else if (playerID.ToNamePrefixString() == player2ID)
-        {
-            player2Points++;
-        }
-        Debug.Log(player1ID+": "+player1Points);
-        Debug.Log(player2ID + ": " + player2Points);
-        //for (int i = 0; i < PlayerNegativePoints.Length; i++)
-        //{
-        //    if (PlayerNegativePoints[i].ID == playerID)
-        //        PlayerNegativePoints[i].AddPoint();
-        //    return;
-        //}
-
-
-
-        //if (PlayerNegativePoints[playerID] >= pointsToWin) { /*win}
-        //
-        //foreach (var item in PlayerNegativePoints)
-        //{
-        //    Debug.Log(item.Key + ": " + item.Value);
-        //}
-        //RPC_UpdateList(PlayerNegativePoints);
-    }
-    //[Rpc(RpcSources.All, RpcTargets.All)]
-    //public void RPC_UpdateList(Dictionary<int, int> _new)
-    //{
-    //    PlayerNegativePoints = _new;
-    //
-    //    foreach (var item in PlayerNegativePoints)
-    //    {
-    //        Debug.Log(item.Key + ": " + item.Value);
-    //    }
-    //}
-    */
     [Rpc(RpcSources.All, RpcTargets.All)]
-    public void RPC_OnResetLevel() => StartCoroutine(ResetLevel());
-
-    IEnumerator ResetLevel()
+    public void RPC_OnEnd(string playerDeadID)
     {
+        canvas.SetActive(true);
+        if (playerDeadID == NetworkPlayer.Local.Runner.GetPlayerUserId())
+            loseSing.SetActive(true);
+        else
+            winSing.SetActive(true);
+            
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void RPC_OnResetLevel(string txt) => StartCoroutine(ResetLevel(txt));
+
+    IEnumerator ResetLevel(string txt)
+    {
+        
         _textRestarting.gameObject.SetActive(true);
         NetworkPlayer.Local.player.ResetLife();
         NetworkPlayer.Local.transform.position = !Object.IsProxy ? 
@@ -102,3 +74,46 @@ public struct PlayerPoints
 
     public void AddPoint() { Points++; }
 }*/
+
+
+
+/*public void AddNegativePoint(NetworkId playerID)
+{
+    if(playerID.ToNamePrefixString()== player1ID)
+    {
+        player1Points++;
+    }
+    else if (playerID.ToNamePrefixString() == player2ID)
+    {
+        player2Points++;
+    }
+    Debug.Log(player1ID+": "+player1Points);
+    Debug.Log(player2ID + ": " + player2Points);
+    //for (int i = 0; i < PlayerNegativePoints.Length; i++)
+    //{
+    //    if (PlayerNegativePoints[i].ID == playerID)
+    //        PlayerNegativePoints[i].AddPoint();
+    //    return;
+    //}
+
+
+
+    //if (PlayerNegativePoints[playerID] >= pointsToWin) { /*win}
+    //
+    //foreach (var item in PlayerNegativePoints)
+    //{
+    //    Debug.Log(item.Key + ": " + item.Value);
+    //}
+    //RPC_UpdateList(PlayerNegativePoints);
+}
+//[Rpc(RpcSources.All, RpcTargets.All)]
+//public void RPC_UpdateList(Dictionary<int, int> _new)
+//{
+//    PlayerNegativePoints = _new;
+//
+//    foreach (var item in PlayerNegativePoints)
+//    {
+//        Debug.Log(item.Key + ": " + item.Value);
+//    }
+//}
+*/

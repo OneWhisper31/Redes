@@ -80,7 +80,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   _rgbd: {fileID: 5409776670838598694}
-  speed: 25
+  _speed: 25
+  _dmg: 10
 --- !u!114 &2939922746483181963
 MonoBehaviour:
   m_ObjectHideFlags: 0

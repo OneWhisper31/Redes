@@ -170,9 +170,10 @@ public class PlayerModel : NetworkBehaviour
     void Dead()
     {
         //Runner.Despawn(this.Object);
-        Debug.LogWarning("Player Muerto");
         //GameManager.GM.AddNegativePoint(NetworkPlayer.Local.Object.Id);
-        GameManager.GM.RPC_OnResetLevel();
+
+        //Debug.LogWarning( Runner.GetPlayerUserId()+" Muerto");
+        GameManager.GM.RPC_OnEnd(Runner.GetPlayerUserId());
     }
 
     public override void Despawned(NetworkRunner runner, bool hasState)
