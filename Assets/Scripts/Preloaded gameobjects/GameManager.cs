@@ -9,24 +9,21 @@ public class GameManager : NetworkBehaviour
     public static GameManager GM { get; private set; }
 
     [SerializeField] TextMeshProUGUI _textRestarting;
+    public TextMeshProUGUI _textConnecting;
 
-    public Transform StateAuthorityInitialPos;
-    public Transform PlayerInitialPos;
+    public Transform InitialPos1;
+    public Transform InitialPos2;
 
     public GameObject canvas,winSing,loseSing;
 
     //key ID, Value isready?
     public Dictionary<string, bool> OnReplayReady = new Dictionary<string, bool>();
 
-    private void Start()
+    private void Awake()
     {
         GM = GetComponent<GameManager>();
     }
 
-    public override void Spawned()
-    {
-        Debug.Log("Authority: " + Object.HasStateAuthority + " - Proxy: " + Object.IsProxy);
-    }
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void RPC_OnEnd(string playerDeadID)
     {
@@ -74,12 +71,18 @@ public class GameManager : NetworkBehaviour
     public void RPC_OnResetLevel(string IDisReady)
     {
         OnReplayReady[IDisReady] = true;
+        
 
         if (IsEveryOneReadyToReset())
         {
             OnReplayReady = new Dictionary<string, bool>();
             OnQuitEndScreen();
-            StartCoroutine(ResetLevel());
+
+            FindObjectsOfType<NetworkPlayer>().Map(x => x.transform.position = x.Object.HasInputAuthority ?
+                            InitialPos1.position : InitialPos2.position);
+
+            NetworkPlayer.Local.player.ResetLife();
+            //StartCoroutine(ResetLevel());
         }
 
     }
@@ -89,8 +92,6 @@ public class GameManager : NetworkBehaviour
         
         _textRestarting.gameObject.SetActive(true);
         NetworkPlayer.Local.player.ResetLife();
-        NetworkPlayer.Local.transform.position = !Object.IsProxy ? 
-            StateAuthorityInitialPos.position: PlayerInitialPos.position;
         Time.timeScale = 0;
 
         yield return new WaitForSecondsRealtime(2f);
